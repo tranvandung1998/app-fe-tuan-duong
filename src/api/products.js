@@ -1,5 +1,4 @@
-import http from '../utils/http';
+// src/api/products.js
+import http from '../../src/utils/http';
 
-export const getUsers = () => http.get('/users');
-
-export const createUser = (data) => http.post('/api/products', data);
+export const createProduct = (data) => http.post('/api/products', data);

@@ -1,13 +1,13 @@
 import { createBrowserRouter } from 'react-router-dom';
 
-import AdminLayout from '@/layouts/AdminLayout';
-import UserLayout from '@/layouts/UserLayout';
+import AdminLayout from '../../src/layouts/AdminLayout';
+import UserLayout from '../../src/layouts/UserLayout';
 
 import Dashboard from '../page/admin/Dashboard';
-import Products from '../page/admin/Products';
+import Products from '../page/admin/CreateProducts';
 
 import Home from '../page/user/Home';
-import Profile from '../page/user/Products';
+import CreateProducts from '../page/admin/CreateProducts';
 
 // import NotFound from '@/pages/notfound/NotFound';
 
@@ -17,7 +17,7 @@ export const router = createBrowserRouter([
     element: <UserLayout />,
     children: [
       { index: true, element: <Home /> },
-      { path: 'profile', element: <Profile /> },
+      { path: 'profile', element: <CreateProducts /> },
     ],
   },
   {
