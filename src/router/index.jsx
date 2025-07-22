@@ -13,16 +13,16 @@ import CreateProducts from '../page/admin/CreateProducts';
 
 export const router = createBrowserRouter([
   {
-    path: '/',
-    element: <UserLayout />,
+    path: '/admin',
+    element: <AdminLayout />,
     children: [
-      { index: true, element: <Home /> },
-      { path: 'profile', element: <CreateProducts /> },
+      { index: true, element: <UserLayout /> },
+      { path: 'create-products', element: <CreateProducts /> },
     ],
   },
   {
-    path: '/admin',
-    element: <AdminLayout />,
+    path: '/',
+    element: <Home/>,
     children: [
       { index: true, element: <Dashboard /> },
       { path: 'products', element: <Products /> },
