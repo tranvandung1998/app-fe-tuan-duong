@@ -1,22 +1,29 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { createNavbar, getNavbar, createTypes } from '../../api/products';
+import { createNavbar, getNavbar, createTypes, createProduct, getTypes } from '../../api/products';
 import { message, Button, Input, Select } from 'antd';
 import { useState } from 'react';
+import UploadImages from '../../../src/component/UploadImages'
 
 export default function CreateProducts() {
   const [name, setName] = useState('');
   const [nameType, setNameType] = useState('');
   const [categoryId, setCategoryId] = useState(null); // lưu danh mục được chọn
 
-  // Tạo navbar
+  // State cho sản phẩm
+  const [productName, setProductName] = useState('');
+  const [productPrice, setProductPrice] = useState('');
+  const [productImage, setProductImage] = useState('');
+  const [productDescription, setProductDescription] = useState('');
+  const [typeId, setTypeId] = useState(null);
+
+  // ======= Tạo navbar =======
   const { mutate, isLoading: isCreatingNav } = useMutation({
     mutationFn: createNavbar,
     onSuccess: () => {
       message.success('Tạo danh mục thành công');
       setName('');
     },
-    onError: (err) => {
-      console.error(err);
+    onError: () => {
       message.error('Tạo danh mục thất bại');
     },
   });
@@ -31,11 +38,9 @@ export default function CreateProducts() {
     queryKey: ['navbar'],
     queryFn: getNavbar,
   });
-  const listNav = data?.data;
-  console.log(listNav);
-    
+  const listNav = data?.data || [];
 
-  // Tạo loại sản phẩm
+  // ======= Tạo loại sản phẩm =======
   const { mutate: mutateType, isLoading: isCreatingType } = useMutation({
     mutationFn: createTypes,
     onSuccess: () => {
@@ -43,8 +48,7 @@ export default function CreateProducts() {
       setNameType('');
       setCategoryId(null);
     },
-    onError: (err) => {
-      console.error(err);
+    onError: () => {
       message.error('Tạo loại sản phẩm thất bại');
     },
   });
@@ -55,6 +59,43 @@ export default function CreateProducts() {
     mutateType({
       name: nameType,
       category_id: categoryId,
+    });
+  };
+
+  // Lấy danh sách loại sản phẩm để chọn khi tạo sản phẩm
+  const { data: typesData } = useQuery({
+    queryKey: ['types'],
+    queryFn: getTypes, // API lấy toàn bộ loại sản phẩm
+  });
+  const listTypes = typesData?.data || [];
+
+  // ======= Tạo sản phẩm =======
+  const { mutate: mutateProduct, isLoading: isCreatingProduct } = useMutation({
+    mutationFn: createProduct,
+    onSuccess: () => {
+      message.success('Tạo sản phẩm thành công');
+      setProductName('');
+      setProductPrice('');
+      setProductImage('');
+      setProductDescription('');
+      setTypeId(null);
+    },
+    onError: () => {
+      message.error('Tạo sản phẩm thất bại');
+    },
+  });
+
+  const handleCreateProduct = () => {
+    if (!productName.trim()) return message.warning('Tên sản phẩm không được để trống');
+    if (!productPrice) return message.warning('Giá sản phẩm không được để trống');
+    if (!typeId) return message.warning('Vui lòng chọn loại sản phẩm');
+
+    mutateProduct({
+      name: productName,
+      price: productPrice,
+      image: productImage,
+      description: productDescription,
+      type_id: typeId,
     });
   };
 
@@ -71,18 +112,14 @@ export default function CreateProducts() {
             value={name}
             onChange={(e) => setName(e.target.value)}
           />
-          <Button
-            type="primary"
-            loading={isCreatingNav}
-            onClick={handleCreateNav}
-          >
+          <Button type="primary" loading={isCreatingNav} onClick={handleCreateNav}>
             Lưu
           </Button>
         </div>
       </div>
 
       {/* Tạo loại sản phẩm */}
-      <div className="max-w-md">
+      <div className="mb-6 max-w-md">
         <h2 className="text-lg font-semibold mb-2">Tạo loại sản phẩm</h2>
         <Input
           className="mb-2"
@@ -95,26 +132,60 @@ export default function CreateProducts() {
           className="w-full mb-2"
           value={categoryId}
           onChange={(value) => setCategoryId(value)}
-          options={
-            Array.isArray(listNav)
-              ? listNav.map((nav) => ({
-                  label: nav.name,
-                  value: nav.id,
-                }))
-              : []
-          }
+          options={listNav.map((nav) => ({
+            label: nav.name,
+            value: nav.id,
+          }))}
         />
-        <Button
-          type="primary"
-          loading={isCreatingType}
-          onClick={handleCreateTypes}
-        >
+        <Button type="primary" loading={isCreatingType} onClick={handleCreateTypes}>
           Lưu
         </Button>
       </div>
 
-      {/* tao san pham */}
-      
+      {/* Tạo sản phẩm */}
+      <div className="max-w-md">
+        <h2 className="text-lg font-semibold mb-2">Tạo sản phẩm</h2>
+        <Input
+          className="mb-2"
+          placeholder="Tên sản phẩm"
+          value={productName}
+          onChange={(e) => setProductName(e.target.value)}
+        />
+        <Input
+          className="mb-2"
+          placeholder="Giá sản phẩm"
+          type="number"
+          value={productPrice}
+          onChange={(e) => setProductPrice(e.target.value)}
+        />
+        <UploadImages
+          onChange={(images) => {
+            // Lấy ảnh đầu tiên, nếu backend yêu cầu raw base64 thì cắt prefix
+            const img = images[0]?.split(',')[1] || images[0] || '';
+            setProductImage(img);
+          }}
+        />
+
+        <Input
+          className="mb-2"
+          placeholder="Mô tả sản phẩm"
+          value={productDescription}
+          onChange={(e) => setProductDescription(e.target.value)}
+        />
+        <Select
+          placeholder="Chọn loại sản phẩm"
+          className="w-full mb-2"
+          value={typeId}
+          onChange={(value) => setTypeId(value)}
+          options={listTypes.map((type) => ({
+            label: type.name,
+            value: type.id,
+          }))}
+        />
+        <Button type="primary" loading={isCreatingProduct} onClick={handleCreateProduct}>
+          Lưu sản phẩm
+        </Button>
+      </div>
     </div>
   );
 }
