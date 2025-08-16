@@ -1,5 +1,5 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { createNavbar, getNavbar, createTypes, createProduct, getTypes } from '../../api/products';
+import { createNavbar, getNavbar, createTypes, createProduct, getTypes, createProductDetail } from '../../api/products';
 import { message, Button, Input, Select } from 'antd';
 import { useState } from 'react';
 import UploadImages from '../../../src/component/UploadImages'
@@ -7,7 +7,7 @@ import UploadImages from '../../../src/component/UploadImages'
 export default function CreateProducts() {
   const [name, setName] = useState('');
   const [nameType, setNameType] = useState('');
-  const [categoryId, setCategoryId] = useState(null); // lưu danh mục được chọn
+  const [categoryId, setCategoryId] = useState(null);
 
   // State cho sản phẩm
   const [productName, setProductName] = useState('');
@@ -15,6 +15,11 @@ export default function CreateProducts() {
   const [productImage, setProductImage] = useState('');
   const [productDescription, setProductDescription] = useState('');
   const [typeId, setTypeId] = useState(null);
+
+  // State cho chi tiết sản phẩm
+  const [detailProductName, setDetailProductName] = useState('');
+  const [productDetail, setProductDetail] = useState('');
+  const [detailImages, setDetailImages] = useState([]);
 
   // ======= Tạo navbar =======
   const { mutate, isLoading: isCreatingNav } = useMutation({
@@ -65,7 +70,7 @@ export default function CreateProducts() {
   // Lấy danh sách loại sản phẩm để chọn khi tạo sản phẩm
   const { data: typesData } = useQuery({
     queryKey: ['types'],
-    queryFn: getTypes, // API lấy toàn bộ loại sản phẩm
+    queryFn: getTypes,
   });
   const listTypes = typesData?.data || [];
 
@@ -96,6 +101,31 @@ export default function CreateProducts() {
       image: productImage,
       description: productDescription,
       type_id: typeId,
+    });
+  };
+
+  // ======= Tạo chi tiết sản phẩm =======
+  const { mutate: mutateProductDetail, isLoading: isCreatingDetail } = useMutation({
+    mutationFn: createProductDetail,
+    onSuccess: () => {
+      message.success('Thêm chi tiết sản phẩm thành công');
+      setDetailProductName('');
+      setProductDetail('');
+      setDetailImages([]);
+    },
+    onError: () => {
+      message.error('Thêm chi tiết sản phẩm thất bại');
+    },
+  });
+
+  const handleCreateProductDetail = () => {
+    if (!detailProductName.trim()) return message.warning('Tên sản phẩm không được để trống');
+    if (!productDetail.trim()) return message.warning('Chi tiết sản phẩm không được để trống');
+
+    mutateProductDetail({
+      product_name: detailProductName,
+      detail: productDetail,
+      images: detailImages,
     });
   };
 
@@ -143,7 +173,7 @@ export default function CreateProducts() {
       </div>
 
       {/* Tạo sản phẩm */}
-      <div className="max-w-md">
+      <div className="max-w-md mb-6">
         <h2 className="text-lg font-semibold mb-2">Tạo sản phẩm</h2>
         <Input
           className="mb-2"
@@ -160,12 +190,10 @@ export default function CreateProducts() {
         />
         <UploadImages
           onChange={(images) => {
-            // Lấy ảnh đầu tiên, nếu backend yêu cầu raw base64 thì cắt prefix
             const img = images[0]?.split(',')[1] || images[0] || '';
             setProductImage(img);
           }}
         />
-
         <Input
           className="mb-2"
           placeholder="Mô tả sản phẩm"
@@ -184,6 +212,33 @@ export default function CreateProducts() {
         />
         <Button type="primary" loading={isCreatingProduct} onClick={handleCreateProduct}>
           Lưu sản phẩm
+        </Button>
+      </div>
+
+      {/* Tạo chi tiết sản phẩm */}
+      <div className="max-w-md">
+        <h2 className="text-lg font-semibold mb-2">Tạo chi tiết sản phẩm</h2>
+        <Input
+          className="mb-2"
+          placeholder="Tên sản phẩm (đã tạo)"
+          value={detailProductName}
+          onChange={(e) => setDetailProductName(e.target.value)}
+        />
+        <Input.TextArea
+          className="mb-2"
+          placeholder="Chi tiết sản phẩm"
+          value={productDetail}
+          onChange={(e) => setProductDetail(e.target.value)}
+        />
+        <UploadImages
+          multiple
+          onChange={(images) => {
+            const imgs = images.map((img) => img.split(',')[1] || img);
+            setDetailImages(imgs);
+          }}
+        />
+        <Button type="primary" loading={isCreatingDetail} onClick={handleCreateProductDetail}>
+          Lưu chi tiết sản phẩm
         </Button>
       </div>
     </div>
