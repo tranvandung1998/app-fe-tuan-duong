@@ -123,10 +123,11 @@ export default function CreateProducts() {
     if (!productDetail.trim()) return message.warning('Chi tiết sản phẩm không được để trống');
 
     mutateProductDetail({
-      product_name: detailProductName,
+      product_name: detailProductName, // phải trùng với name sản phẩm đã tạo
       detail: productDetail,
-      images: detailImages,
+      images: detailImages, // tên trường backend nhận là 'images'
     });
+
   };
 
   return (
@@ -189,11 +190,14 @@ export default function CreateProducts() {
           onChange={(e) => setProductPrice(e.target.value)}
         />
         <UploadImages
+          multiple
           onChange={(images) => {
-            const img = images[0]?.split(',')[1] || images[0] || '';
-            setProductImage(img);
+            // Backend hiện tại expects product_images: string[]
+            const imgs = images.map((img) => img.includes(',') ? img.split(',')[1] : img);
+            setDetailImages(imgs);
           }}
         />
+
         <Input
           className="mb-2"
           placeholder="Mô tả sản phẩm"

@@ -4,7 +4,7 @@ import AdminLayout from '../../src/layouts/AdminLayout';
 import UserLayout from '../../src/layouts/UserLayout';
 
 import Dashboard from '../page/admin/Dashboard';
-import Products from '../page/admin/CreateProducts';
+import Products from '../page/user/Products';
 
 import Home from '../page/user/Home';
 import CreateProducts from '../page/admin/CreateProducts';
@@ -21,7 +21,7 @@ export const router = createBrowserRouter([
     ],
   },
   {
-    path: '/',
+    path: '/user',
     element: <Home/>,
     children: [
       { index: true, element: <Dashboard /> },
