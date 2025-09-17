@@ -10,4 +10,4 @@ export const getTypes = () => http.get('api/types');
 export const createProduct = (payload) => http.post('api/products', payload);
 export const getroduct = (payload) => http.get('api/products', payload);
 
-export const createProductDetail = (payload) => http.post('api/product-details', payload);
+export const createProductDetail = (payload) => http.post('api/product-detail', payload);
