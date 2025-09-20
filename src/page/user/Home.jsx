@@ -1,64 +1,108 @@
-import React from "react";
-import { Card } from "antd";
-import { UserOutlined, TrophyOutlined, ProjectOutlined, MailOutlined, PhoneOutlined, EnvironmentOutlined } from "@ant-design/icons";
+import {
+  UserOutlined,
+  TrophyOutlined,
+  PictureOutlined,
+  MailOutlined,
+  EnvironmentOutlined,
+  PhoneOutlined,
+  TeamOutlined,
+} from "@ant-design/icons";
 
-const Home = () => {
-  const features = [
-    { icon: <UserOutlined />, title: "GIỚI THIỆU" },
-    { icon: <TrophyOutlined />, title: "THÀNH TỰU" },
-    { icon: <ProjectOutlined />, title: "DỰ ÁN ĐÃ LÀM" },
-    { icon: <MailOutlined />, title: "LIÊN HỆ" },
-  ];
-
-  const contacts = [
-    { icon: <EnvironmentOutlined />, text: "Tầng 4, Tòa nhà số 97 - 99 Láng Hạ, Đống Đa, Hà Nội (Tòa nhà Petrowaco)" },
-    { icon: <PhoneOutlined />, text: "+84901 191 616" },
-    { icon: <MailOutlined />, text: "contact@sm4s.vn" },
-  ];
-
+export default function Home() {
   return (
-    <div className="flex flex-col w-full min-h-screen bg-gray-900 text-white">
-      {/* Hero Section */}
-      <div className="flex flex-col md:flex-row w-full h-auto md:h-[80vh]">
-        <div className="md:w-1/2 flex flex-col justify-center items-start p-8 bg-black bg-opacity-50">
-          <p className="text-white text-lg mb-2">Xin chào, tôi là</p>
-          <h1 className="text-4xl md:text-5xl font-bold mb-2">James Willians Rex</h1>
-          <p className="text-red-500 text-lg">Nhà thiết kế đồ họa và web</p>
-        </div>
-        <div className="md:w-1/2">
-          <img
-            src="/your-hero-image.jpg"
-            alt="Hero"
-            className="w-full h-full object-cover"
-          />
-        </div>
-      </div>
+    <div className="relative w-full h-full min-h-screen font-sans">
+      {/* Background */}
+      <img
+        src="https://standboothvietnam.com/wp-content/uploads/2023/08/gach-op-lat-1.jpg"
+        alt="Background"
+        className="absolute inset-0 w-full h-full object-cover"
+      />
 
-      {/* Features Section */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4 md:p-8">
-        {features.map((feature, idx) => (
-          <Card
-            key={idx}
-            hoverable
-            className="bg-black bg-opacity-50 text-center flex flex-col justify-center items-center py-12 rounded-lg"
-          >
-            <div className="text-3xl text-red-500 mb-2">{feature.icon}</div>
-            <p className="text-white font-semibold">{feature.title}</p>
-          </Card>
-        ))}
-      </div>
+      {/* Overlay */}
+      <div className="absolute inset-0 bg-black/70" />
 
-      {/* Contact Section */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 md:p-8 bg-gray-800">
-        {contacts.map((contact, idx) => (
-          <div key={idx} className="flex flex-col items-center text-center">
-            <div className="text-2xl text-white mb-2">{contact.icon}</div>
-            <p className="text-white">{contact.text}</p>
+      {/* Nội dung */}
+      <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 min-h-screen">
+        {/* Left Section */}
+        <div className="flex justify-center items-start p-8 md:p-16">
+<img
+  className="w-[50%] md:w-[20%]"
+  src="../../../public/image/ChatGPT Image Sep 19, 2025, 08_00_25 PM.png"
+  alt="logo"
+/>
+
+        </div>
+
+        {/* Right Section */}
+        <div className="grid grid-rows-2">
+          {/* Top 4 menu */}
+          <div className="grid grid-cols-2 md:grid-cols-4">
+            {/* GIỚI THIỆU */}
+            <div className="flex flex-col items-center justify-center bg-black/40 cursor-pointer p-6">
+              <div className="border-icon-text flex flex-col items-center justify-center">
+                <div className="bg-red-500 rounded-full p-4 flex items-center justify-center mb-2">
+                  <UserOutlined style={{ fontSize: "32px", color: "white" }} />
+                </div>
+                <span className="text-base md:text-lg font-semibold text-white font-sans">
+                  GIỚI THIỆU
+                </span>
+              </div>
+            </div>
+
+            {/* SẢN PHẨM */}
+            <div className="flex flex-col items-center justify-center bg-black/40 cursor-pointer p-6">
+              <div className="border-icon-text flex flex-col items-center justify-center">
+                <div className="bg-red-500 rounded-full p-4 flex items-center justify-center mb-2">
+                  <TrophyOutlined style={{ fontSize: "32px", color: "white" }} />
+                </div>
+                <span className="text-base md:text-lg font-semibold text-white font-sans">
+                  SẢN PHẨM
+                </span>
+              </div>
+            </div>
+
+            {/* THÀNH VIÊN */}
+            <div className="flex flex-col items-center justify-center bg-black/40 cursor-pointer p-6">
+              <div className="border-icon-text flex flex-col items-center justify-center">
+                <div className="bg-red-500 rounded-full p-4 flex items-center justify-center mb-2">
+                  <TeamOutlined style={{ fontSize: "32px", color: "white" }} />
+                </div>
+                <span className="text-base md:text-lg font-semibold text-white font-sans">
+                  THÀNH VIÊN
+                </span>
+              </div>
+            </div>
+
+            {/* LIÊN HỆ */}
+            <div className="flex flex-col items-center justify-center bg-black/40 cursor-pointer p-6">
+              <div className="border-icon-text flex flex-col items-center justify-center">
+                <div className="bg-red-500 rounded-full p-4 flex items-center justify-center mb-2">
+                  <MailOutlined style={{ fontSize: "32px", color: "white" }} />
+                </div>
+                <span className="text-base md:text-lg font-semibold text-white font-sans">
+                  LIÊN HỆ
+                </span>
+              </div>
+            </div>
           </div>
-        ))}
+
+          {/* Bottom contact */}
+          <div className="grid grid-cols-1 md:grid-cols-3 bg-black/80 text-center text-sm md:text-base font-sans">
+            <div className="flex flex-col items-center justify-center p-4 border-t md:border-t-0 md:border-r border-gray-700 text-white">
+              <EnvironmentOutlined className="text-xl mb-2" />
+              <p>Thôn Tân An - Xã Đông Thụy Anh - tỉnh Hưng Yên</p>
+            </div>
+            <div className="flex flex-col items-center justify-center p-4 border-t md:border-t-0 md:border-r border-gray-700 text-white">
+              <PhoneOutlined className="text-xl mb-2" />
+              <p>+84901 191 616</p>
+            </div>
+            <div className="flex flex-col items-center justify-center p-4 border-t md:border-t-0 text-white">
+              <MailOutlined className="text-xl mb-2" />
+              <p>contact@sm4s.vn</p>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
-};
-
-export default Home;
+}
