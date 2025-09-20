@@ -25,11 +25,11 @@ export default function Home() {
       <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 min-h-screen">
         {/* Left Section */}
         <div className="flex justify-center items-start p-8 md:p-16">
-<img
-  className="w-[50%] md:w-[20%]"
-  src="../../../public/image/logoIcon.png"
-  alt="logo"
-/>
+          <img
+            className="w-[50%] md:w-[20%]"
+            src="/public/image/logoIcon.png"
+            alt="logo"
+          />
 
         </div>
 
