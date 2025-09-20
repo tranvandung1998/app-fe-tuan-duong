@@ -27,7 +27,7 @@ export default function Home() {
         <div className="flex justify-center items-start p-8 md:p-16">
 <img
   className="w-[50%] md:w-[20%]"
-  src="../../../public/image/ChatGPT Image Sep 19, 2025, 08_00_25 PM.png"
+  src="../../../public/image/logoIcon.png"
   alt="logo"
 />
 
