@@ -27,7 +27,7 @@ export default function Home() {
         <div className="flex justify-center items-start p-8 md:p-16">
           <img
             className="w-[50%] md:w-[20%]"
-            src="/public/image/logoIcon.png"
+            src="https://i.postimg.cc/05GDTpgx/logoIcon.png"
             alt="logo"
           />
 
