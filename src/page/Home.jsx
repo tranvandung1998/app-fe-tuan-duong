@@ -7,8 +7,16 @@ import {
   PhoneOutlined,
   TeamOutlined,
 } from "@ant-design/icons";
+import { useNavigate } from "react-router-dom";
 
 export default function Home() {
+  const navigate = useNavigate(); // hook để điều hướng
+
+  // hàm click
+  const handleClick = (path) => {
+    navigate(path);
+  };
+
   return (
     <div className="relative w-full h-full min-h-screen font-sans">
       {/* Background */}
@@ -26,11 +34,10 @@ export default function Home() {
         {/* Left Section */}
         <div className="flex justify-center items-start p-8 md:p-16">
           <img
-            className="w-[50%] md:w-[20%]"
+            className="w-[20%]"
             src="https://i.postimg.cc/05GDTpgx/logoIcon.png"
             alt="logo"
           />
-
         </div>
 
         {/* Right Section */}
@@ -38,7 +45,10 @@ export default function Home() {
           {/* Top 4 menu */}
           <div className="grid grid-cols-2 md:grid-cols-4">
             {/* GIỚI THIỆU */}
-            <div className="flex flex-col items-center justify-center bg-black/40 cursor-pointer p-6">
+            <div
+              onClick={() => handleClick("/home")}
+              className="flex flex-col items-center justify-center bg-black/40 cursor-pointer p-6"
+            >
               <div className="border-icon-text flex flex-col items-center justify-center">
                 <div className="bg-red-500 rounded-full p-4 flex items-center justify-center mb-2">
                   <UserOutlined style={{ fontSize: "32px", color: "white" }} />
@@ -50,7 +60,10 @@ export default function Home() {
             </div>
 
             {/* SẢN PHẨM */}
-            <div className="flex flex-col items-center justify-center bg-black/40 cursor-pointer p-6">
+            <div
+              onClick={() => handleClick("/products")}
+              className="flex flex-col items-center justify-center bg-black/40 cursor-pointer p-6"
+            >
               <div className="border-icon-text flex flex-col items-center justify-center">
                 <div className="bg-red-500 rounded-full p-4 flex items-center justify-center mb-2">
                   <TrophyOutlined style={{ fontSize: "32px", color: "white" }} />
@@ -62,7 +75,10 @@ export default function Home() {
             </div>
 
             {/* THÀNH VIÊN */}
-            <div className="flex flex-col items-center justify-center bg-black/40 cursor-pointer p-6">
+            <div
+              onClick={() => handleClick("/members")}
+              className="flex flex-col items-center justify-center bg-black/40 cursor-pointer p-6"
+            >
               <div className="border-icon-text flex flex-col items-center justify-center">
                 <div className="bg-red-500 rounded-full p-4 flex items-center justify-center mb-2">
                   <TeamOutlined style={{ fontSize: "32px", color: "white" }} />
@@ -74,7 +90,10 @@ export default function Home() {
             </div>
 
             {/* LIÊN HỆ */}
-            <div className="flex flex-col items-center justify-center bg-black/40 cursor-pointer p-6">
+            <div
+              onClick={() => handleClick("/contact")}
+              className="flex flex-col items-center justify-center bg-black/40 cursor-pointer p-6"
+            >
               <div className="border-icon-text flex flex-col items-center justify-center">
                 <div className="bg-red-500 rounded-full p-4 flex items-center justify-center mb-2">
                   <MailOutlined style={{ fontSize: "32px", color: "white" }} />

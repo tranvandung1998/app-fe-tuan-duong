@@ -1,8 +1,8 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { createNavbar, getNavbar, createTypes, createProduct, getTypes, createProductDetail } from '../../api/products';
+import { createNavbar, getNavbar, createTypes, createProduct, getTypes, createProductDetail } from '../api/products';
 import { message, Button, Input, Select } from 'antd';
 import { useState } from 'react';
-import UploadImages from '../../../src/component/UploadImages'
+import UploadImages from '../component/UploadImages'
 
 export default function CreateProducts() {
   const [name, setName] = useState('');
