@@ -11,3 +11,10 @@ export const createProduct = (payload) => http.post('api/products', payload);
 export const getroduct = (payload) => http.get('api/products', payload);
 
 export const createProductDetail = (payload) => http.post('api/product-detail', payload);
+
+
+
+
+// get api
+
+// export const getProducts = (payload) => http.post('api/products');

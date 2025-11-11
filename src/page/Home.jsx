@@ -14,6 +14,7 @@ export default function Home() {
 
   // hàm click
   const handleClick = (path) => {
+    console.log(path);
     navigate(path);
   };
 
@@ -37,6 +38,7 @@ export default function Home() {
             className="w-[20%]"
             src="https://i.postimg.cc/05GDTpgx/logoIcon.png"
             alt="logo"
+             onClick={() => handleClick("/home")}
           />
         </div>
 
@@ -76,7 +78,7 @@ export default function Home() {
 
             {/* THÀNH VIÊN */}
             <div
-              onClick={() => handleClick("/members")}
+              onClick={() => handleClick("/create-products")}
               className="flex flex-col items-center justify-center bg-black/40 cursor-pointer p-6"
             >
               <div className="border-icon-text flex flex-col items-center justify-center">

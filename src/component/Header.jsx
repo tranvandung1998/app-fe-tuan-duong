@@ -1,19 +1,35 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { FaBars, FaSearch } from "react-icons/fa";
 
-export default function Header() {
+export default function Header({ data }) {
+  const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
   const [categoryOpen, setCategoryOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState(null);
 
-  // Theo dõi kích thước màn hình để xác định mobile / desktop
+  // Xác định kích thước màn hình
   useEffect(() => {
     const checkScreen = () => setIsMobile(window.innerWidth < 768);
     checkScreen();
     window.addEventListener("resize", checkScreen);
     return () => window.removeEventListener("resize", checkScreen);
   }, []);
+
+  const handleClick = (path) => navigate(path);
+
+  const listNavBar = data?.data || [];
+
+  
+    console.log(JSON.stringify(listNavBar, null, 2));
+  // const handleCategoryClick = (category) => {
+    
+  //   setSelectedCategory(
+  //     selectedCategory?.id === category.id ? null : category
+  //   );
+  // };
 
   return (
     <div
@@ -55,7 +71,7 @@ export default function Header() {
           </button>
         )}
 
-        {/* --- Logo --- */}
+        {/* Logo */}
         <img
           src="/image/logoIcon.png"
           alt="logo"
@@ -198,10 +214,12 @@ export default function Header() {
                     color: "#000",
                   }}
                 >
-                  <div style={{ padding: "8px 12px", cursor: "pointer", color: "#000" }}>Gạch</div>
-                  <div style={{ padding: "8px 12px", cursor: "pointer", color: "#000" }}>Bồn cầu</div>
-                  <div style={{ padding: "8px 12px", cursor: "pointer", color: "#000" }}>Sen vòi</div>
-                  <div style={{ padding: "8px 12px", cursor: "pointer", color: "#000" }}>Bồn rửa</div>
+{listNavBar?.map((list) => (
+  <div key={list.id} style={{ padding: "8px 12px", cursor: "pointer" }}>
+    {list.name}  {/* chỉ render tên thôi */}
+  </div>
+))}
+
                 </div>
               )}
             </div>
