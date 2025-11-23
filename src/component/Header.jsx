@@ -2,15 +2,13 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { FaBars, FaSearch } from "react-icons/fa";
 
-export default function Header({ data }) {
+export default function Header({ data, onSearch }) {
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
-  const [categoryOpen, setCategoryOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState(null);
+  const [searchText, setSearchText] = useState("");
 
-  // Xác định kích thước màn hình
   useEffect(() => {
     const checkScreen = () => setIsMobile(window.innerWidth < 768);
     checkScreen();
@@ -18,18 +16,13 @@ export default function Header({ data }) {
     return () => window.removeEventListener("resize", checkScreen);
   }, []);
 
-  const handleClick = (path) => navigate(path);
-
   const listNavBar = data?.data || [];
 
-  
-    console.log(JSON.stringify(listNavBar, null, 2));
-  // const handleCategoryClick = (category) => {
-    
-  //   setSelectedCategory(
-  //     selectedCategory?.id === category.id ? null : category
-  //   );
-  // };
+  const handleSearch = () => {
+    // Gọi callback parent
+    if (onSearch) onSearch(searchText.trim());
+    console.log("Search:", searchText.trim());
+  };
 
   return (
     <div
@@ -52,7 +45,6 @@ export default function Header({ data }) {
           gap: isMobile ? 0 : "20px",
         }}
       >
-        {/* --- Icon menu (chỉ hiển thị trên mobile) --- */}
         {isMobile && (
           <button
             onClick={() => {
@@ -71,7 +63,6 @@ export default function Header({ data }) {
           </button>
         )}
 
-        {/* Logo */}
         <img
           src="/image/logoIcon.png"
           alt="logo"
@@ -83,25 +74,8 @@ export default function Header({ data }) {
           }}
         />
 
-        {/* --- Thanh tìm kiếm (hiển thị khác nhau cho mobile / desktop) --- */}
-        {isMobile ? (
-          <button
-            onClick={() => {
-              setSearchOpen(!searchOpen);
-              setMenuOpen(false);
-            }}
-            style={{
-              background: "none",
-              border: "none",
-              cursor: "pointer",
-              fontSize: "22px",
-              color: "#000",
-            }}
-          >
-            <FaSearch />
-          </button>
-        ) : (
-          // --- Thanh tìm kiếm desktop ---
+        {/* Thanh search desktop */}
+        {!isMobile && (
           <div
             style={{
               marginLeft: "auto",
@@ -113,6 +87,9 @@ export default function Header({ data }) {
             <input
               type="text"
               placeholder="Tìm sản phẩm, mã hàng..."
+              value={searchText}
+              onChange={(e) => setSearchText(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleSearch()}
               style={{
                 width: "280px",
                 padding: "8px 12px",
@@ -136,111 +113,34 @@ export default function Header({ data }) {
                 cursor: "pointer",
                 fontWeight: "500",
               }}
+              onClick={handleSearch}
             >
               Tìm kiếm
             </button>
           </div>
         )}
+
+        {/* Mobile search button */}
+        {isMobile && (
+          <button
+            onClick={() => {
+              setSearchOpen(!searchOpen);
+              setMenuOpen(false);
+            }}
+            style={{
+              background: "none",
+              border: "none",
+              cursor: "pointer",
+              fontSize: "22px",
+              color: "#000",
+            }}
+          >
+            <FaSearch />
+          </button>
+        )}
       </div>
 
-      {/* --- MENU MOBILE --- */}
-      {isMobile && menuOpen && (
-        <div
-          style={{
-            marginTop: "12px",
-            backgroundColor: "rgba(255, 255, 255, 0.95)",
-            padding: "10px",
-            borderRadius: "8px",
-            boxShadow: "0 4px 10px rgba(0, 0, 0, 0.1)",
-            animation: "slideDown 0.3s ease",
-            color: "#000",
-          }}
-        >
-          {/* --- Các mục chính --- */}
-          <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-            <div
-              style={{
-                padding: "8px 12px",
-                borderRadius: "6px",
-                backgroundColor: "#f9f9f9",
-                cursor: "pointer",
-                border: "1px solid #ccc",
-                color: "#000",
-              }}
-            >
-              Trang chủ
-            </div>
-
-            <div
-              style={{
-                padding: "8px 12px",
-                borderRadius: "6px",
-                backgroundColor: "#f9f9f9",
-                cursor: "pointer",
-                border: "1px solid #ccc",
-                color: "#000",
-              }}
-            >
-              Giới thiệu
-            </div>
-
-            <div>
-              <button
-                onClick={() => setCategoryOpen(!categoryOpen)}
-                style={{
-                  width: "100%",
-                  textAlign: "left",
-                  padding: "8px 12px",
-                  borderRadius: "6px",
-                  border: "1px solid #ccc",
-                  backgroundColor: "#f9f9f9",
-                  cursor: "pointer",
-                  fontWeight: "500",
-                  color: "#000",
-                }}
-              >
-                Danh mục sản phẩm ▾
-              </button>
-
-              {categoryOpen && (
-                <div
-                  style={{
-                    marginTop: "6px",
-                    border: "1px solid #ddd",
-                    borderRadius: "6px",
-                    overflow: "hidden",
-                    backgroundColor: "#fff",
-                    animation: "fadeIn 0.2s ease",
-                    color: "#000",
-                  }}
-                >
-{listNavBar?.map((list) => (
-  <div key={list.id} style={{ padding: "8px 12px", cursor: "pointer" }}>
-    {list.name}  {/* chỉ render tên thôi */}
-  </div>
-))}
-
-                </div>
-              )}
-            </div>
-
-            <div
-              style={{
-                padding: "8px 12px",
-                borderRadius: "6px",
-                backgroundColor: "#f9f9f9",
-                cursor: "pointer",
-                border: "1px solid #ccc",
-                color: "#000",
-              }}
-            >
-              Liên hệ
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* --- TÌM KIẾM MOBILE --- */}
+      {/* --- SEARCH MOBILE --- */}
       {isMobile && searchOpen && (
         <div
           style={{
@@ -255,6 +155,9 @@ export default function Header({ data }) {
           <input
             type="text"
             placeholder="Nhập tên sản phẩm, mã hàng..."
+            value={searchText}
+            onChange={(e) => setSearchText(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && handleSearch()}
             style={{
               width: "100%",
               padding: "8px 12px",
@@ -262,7 +165,7 @@ export default function Header({ data }) {
               border: "1px solid #ccc",
               marginBottom: "10px",
               outline: "none",
-              color: "#000", // text màu đen
+              color: "#000",
               backgroundColor: "#fff",
               transition: "all 0.2s",
             }}
@@ -280,6 +183,7 @@ export default function Header({ data }) {
               cursor: "pointer",
               fontWeight: "500",
             }}
+            onClick={handleSearch}
           >
             Tìm kiếm
           </button>

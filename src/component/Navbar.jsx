@@ -4,7 +4,6 @@ export default function Navbar() {
   const { pathname } = useLocation();
 
   const navItems = [
-    { path: "/ProductDetail", label: "Sản phẩm" },
     { path: "/", label: "Trang chủ" },
     { path: "/admin", label: "Admin" },
   ];

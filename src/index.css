@@ -19,6 +19,15 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+
 html, body, #root {
   width: 100%;
   height: 100%;

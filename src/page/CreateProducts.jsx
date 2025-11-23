@@ -111,14 +111,19 @@ export default function CreateProducts() {
     if (!productName.trim()) return message.warning("Tên sản phẩm không được để trống");
     if (!productPrice) return message.warning("Giá sản phẩm không được để trống");
     if (!typeId) return message.warning("Chọn loại sản phẩm");
-    createProd({
-      name: productName,
-      price: productPrice,
-      description: productDescription,
-      type_id: typeId,
-      image: productImages,
-    });
+    if (!productImages.length) return message.warning("Vui lòng chọn ảnh sản phẩm");
+
+    const formData = new FormData();
+    formData.append("name", productName);
+    formData.append("price", productPrice);
+    formData.append("type_id", typeId.toString());
+    formData.append("description", productDescription || "");
+
+    productImages.forEach((file) => formData.append("image", file)); // multiple files
+
+    createProduct(formData);
   };
+
 
   const handleCreateDetail = () => {
     if (!detailProductName.trim()) return message.warning("Tên sản phẩm không được để trống");
@@ -203,11 +208,9 @@ export default function CreateProducts() {
           />
           <UploadImages
             multiple
-            onChange={(imgs) => {
-              const formatted = imgs.map((img) => img.split(",")[1] || img);
-              setProductImages(formatted);
-            }}
+            onChange={(files) => setProductImages(files)} // files là File[]
           />
+
           <Button type="primary" loading={creatingProd} onClick={handleCreateProduct}>
             Lưu sản phẩm
           </Button>
