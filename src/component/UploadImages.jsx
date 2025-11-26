@@ -1,26 +1,26 @@
-import { useState } from "react";
+import React, { useState } from "react";
+import { PlusOutlined } from "@ant-design/icons";
 
-export default function UploadImages({ multiple = false, onChange }) {
-  const [previews, setPreviews] = useState([]);
+export default function UploadImage({ onChange }) {
+  const [preview, setPreview] = useState(null);
 
   const handleSelect = (e) => {
-    const files = Array.from(e.target.files); // File[]
-    onChange(files); // Trả File[] cho parent
+    const file = e.target.files?.[0];
+    if (!file) return;
 
-    // Preview
-    const urls = files.map((file) => URL.createObjectURL(file));
-    setPreviews(urls);
+    setPreview(URL.createObjectURL(file));
+    onChange(file); // gửi thẳng File lên FE state
   };
 
   return (
-    <div className="flex flex-col gap-2">
-      <input type="file" multiple={multiple} onChange={handleSelect} className="border p-2 rounded" />
-
-      <div className="flex gap-2 flex-wrap">
-        {previews.map((url, idx) => (
-          <img key={idx} src={url} alt={`preview-${idx}`} className="w-24 h-24 object-cover rounded border" />
-        ))}
-      </div>
-    </div>
+    <label className="border rounded-lg w-40 h-40 flex items-center justify-center cursor-pointer relative overflow-hidden">
+      {preview ? <img src={preview} className="w-full h-full object-cover" /> : <PlusOutlined />}
+      <input
+        type="file"
+        accept="image/*"
+        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+        onChange={handleSelect}
+      />
+    </label>
   );
 }

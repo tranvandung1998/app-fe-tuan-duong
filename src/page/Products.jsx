@@ -3,7 +3,7 @@ import Header from "../component/Header";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { FaBox } from "react-icons/fa";
-import { getNavbar, getProduct } from "../api/products";
+import { getNavbar, getFullProduct } from "../api/products";
 
 export default function Products() {
   const navigate = useNavigate();
@@ -17,13 +17,16 @@ export default function Products() {
   const listNav = navData?.data || [];
 
   // Products query, filter by searchName
-  const { data: productData, refetch } = useQuery({
-    queryKey: ["products", searchName],
-    queryFn: () => getProduct({ name: searchName }),
-    keepPreviousData: true,
-  });
+const { data: productData, refetch } = useQuery({
+  queryKey: ["products", searchName],
+  queryFn: () => getFullProduct(searchName ? { name: searchName } : {}), // nếu trống thì trả all
+  keepPreviousData: true,
+});
+
 
   const listProducts = productData?.data?.data || [];
+  console.log(listProducts);
+  
 
   // --- log kết quả search ---
   useEffect(() => {
@@ -72,24 +75,26 @@ export default function Products() {
       >
         {listProducts?.map((product) => {
           const imageUrl =
-            product.images && product.images.length > 0
-              ? product.images[0]
+            product.product_images && product.product_images.length > 0
+              ? product.product_images
               : "https://image.plo.vn/1200x630/Uploaded/2025/obflucp/2014_04_03/82801_20140402170734_JETO.jpg";
 
           return (
-            <div
-              key={product.id}
-              style={{
-                border: "1px solid #ddd",
-                borderRadius: "8px",
-                padding: "12px",
-                background: "#fff",
-                boxShadow: "0 2px 6px rgba(0,0,0,0.05)",
-                cursor: "pointer", // thêm con trỏ chuột
-              }}
-              onClick={() => navigate(`/product-detail/${product.id}`)}
+<div
+  key={product.id}
+  style={{
+    border: "1px solid #ddd",
+    borderRadius: "8px",
+    padding: "12px",
+    background: "#fff",
+    boxShadow: "0 2px 6px rgba(0,0,0,0.05)",
+    cursor: "pointer",
+  }}
+  onClick={() =>
+    navigate(`/product-detail/${product.name}`, { state: { product } }) // truyền object product qua state
+  }
+>
 
-            >
               <img
                 src={imageUrl}
                 alt={product.name}

@@ -1,15 +1,10 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
-import {
-  createNavbar,
-  getNavbar,
-  createTypes,
-  createProduct,
-  getTypes,
-  createProductDetail,
-} from "../api/products";
+import { createNavbar, getNavbar, createTypes, getTypes, createFullProduct } from "../api/products";
 import { message, Button, Input, Select, Steps } from "antd";
 import { useState } from "react";
 import UploadImages from "../component/UploadImages";
+import Upload10Images from "../component/Upload10Images";
+import { supabase } from "../../lib/supabaseClient";
 
 export default function CreateProducts() {
   const [currentStep, setCurrentStep] = useState(0);
@@ -21,17 +16,26 @@ export default function CreateProducts() {
   const [nameType, setNameType] = useState("");
   const [categoryId, setCategoryId] = useState(null);
 
-  // --- PRODUCT ---
+  // --- PRODUCT + DETAIL ---
   const [productName, setProductName] = useState("");
   const [productPrice, setProductPrice] = useState("");
   const [productDescription, setProductDescription] = useState("");
   const [typeId, setTypeId] = useState(null);
-  const [productImages, setProductImages] = useState([]);
+  const [productImage, setProductImage] = useState(null); // 1 ảnh chính
+  const [detailDescription, setDetailDescription] = useState("");
+  const [detailImages, setDetailImages] = useState(Array(10).fill(null)); // 10 ô
 
-  // --- PRODUCT DETAIL ---
-  const [detailProductName, setDetailProductName] = useState("");
-  const [productDetail, setProductDetail] = useState("");
-  const [detailImages, setDetailImages] = useState([]);
+
+  const uploadFile = async (file, folder) => {
+    const fileName = `${crypto.randomUUID()}-${file.name}`;
+    const { error } = await supabase.storage
+      .from("product-images")
+      .upload(`${folder}/${fileName}`, file);
+    if (error) throw error;
+    const { data } = supabase.storage.from("product-images").getPublicUrl(`${folder}/${fileName}`);
+    return data.publicUrl;
+  };
+
 
   // ===== Query Data =====
   const { data: navData, refetch: refetchNav } = useQuery({
@@ -70,29 +74,21 @@ export default function CreateProducts() {
     onError: () => message.error("Tạo loại sản phẩm thất bại"),
   });
 
-  const { mutate: createProd, isLoading: creatingProd } = useMutation({
-    mutationFn: createProduct,
+  const { mutate: createFull, isLoading: creatingFull } = useMutation({
+    mutationFn: createFullProduct,
     onSuccess: () => {
-      message.success("Tạo sản phẩm thành công");
+      message.success("Tạo sản phẩm + chi tiết thành công");
+      // reset form
       setProductName("");
       setProductPrice("");
       setProductDescription("");
       setTypeId(null);
-      setProductImages([]);
+      setProductImage(null);
+      setDetailDescription("");
+      setDetailImages(Array(10).fill(null));
       setCurrentStep(3);
     },
-    onError: () => message.error("Tạo sản phẩm thất bại"),
-  });
-
-  const { mutate: createDetail, isLoading: creatingDetail } = useMutation({
-    mutationFn: createProductDetail,
-    onSuccess: () => {
-      message.success("Thêm chi tiết sản phẩm thành công");
-      setDetailProductName("");
-      setProductDetail("");
-      setDetailImages([]);
-    },
-    onError: () => message.error("Thêm chi tiết sản phẩm thất bại"),
+    onError: () => message.error("Tạo sản phẩm + chi tiết thất bại"),
   });
 
   // ===== Handlers =====
@@ -107,32 +103,44 @@ export default function CreateProducts() {
     createType({ name: nameType, category_id: categoryId });
   };
 
-  const handleCreateProduct = () => {
-    if (!productName.trim()) return message.warning("Tên sản phẩm không được để trống");
-    if (!productPrice) return message.warning("Giá sản phẩm không được để trống");
-    if (!typeId) return message.warning("Chọn loại sản phẩm");
-    if (!productImages.length) return message.warning("Vui lòng chọn ảnh sản phẩm");
+  const handleCreateFullProduct = async () => {
+    try {
+      console.log("Click submit", { productImage, detailImages, productName, productPrice });
 
-    const formData = new FormData();
-    formData.append("name", productName);
-    formData.append("price", productPrice);
-    formData.append("type_id", typeId.toString());
-    formData.append("description", productDescription || "");
+      if (!productName.trim()) return message.warning("Tên sản phẩm không được để trống");
+      if (!productPrice) return message.warning("Giá sản phẩm không được để trống");
+      if (!typeId) return message.warning("Chọn loại sản phẩm");
+      if (!productImage) return message.warning("Vui lòng chọn ảnh sản phẩm");
+      if (detailImages.every((img) => img === null)) return message.warning("Vui lòng chọn ít nhất 1 ảnh chi tiết");
 
-    productImages.forEach((file) => formData.append("image", file)); // multiple files
+      message.loading({ content: "Đang upload ảnh...", key: "upload" });
 
-    createProduct(formData);
-  };
+      const productUrl = await uploadFile(productImage, "products");
 
+      const detailUrls = [];
+      for (const file of detailImages) {
+        if (file) {
+          const url = await uploadFile(file, "details");
+          detailUrls.push(url);
+        }
+      }
 
-  const handleCreateDetail = () => {
-    if (!detailProductName.trim()) return message.warning("Tên sản phẩm không được để trống");
-    if (!productDetail.trim()) return message.warning("Chi tiết sản phẩm không được để trống");
-    createDetail({
-      product_name: detailProductName,
-      detail: productDetail,
-      images: detailImages,
-    });
+      message.success({ content: "Upload xong", key: "upload" });
+
+      // gửi JSON về BE
+      createFull({
+        name: productName,
+        price: Number(productPrice),
+        type_id: typeId,
+        description: productDescription || "",
+        product_images: productUrl,
+        detail_description: detailDescription,
+        detail_images: detailUrls,
+      });
+    } catch (err) {
+      console.error(err);
+      message.error("Upload ảnh thất bại");
+    }
   };
 
   // ===== Steps UI =====
@@ -141,12 +149,7 @@ export default function CreateProducts() {
       title: "Danh mục",
       content: (
         <div className="max-w-md">
-          <Input
-            placeholder="Nhập tên danh mục"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            className="mb-2"
-          />
+          <Input placeholder="Tên danh mục" value={name} onChange={(e) => setName(e.target.value)} className="mb-2" />
           <Button type="primary" loading={creatingNav} onClick={handleCreateNav}>
             Lưu danh mục
           </Button>
@@ -157,12 +160,7 @@ export default function CreateProducts() {
       title: "Loại sản phẩm",
       content: (
         <div className="max-w-md">
-          <Input
-            placeholder="Tên loại sản phẩm"
-            value={nameType}
-            onChange={(e) => setNameType(e.target.value)}
-            className="mb-2"
-          />
+          <Input placeholder="Tên loại" value={nameType} onChange={(e) => setNameType(e.target.value)} className="mb-2" />
           <Select
             placeholder="Chọn danh mục cha"
             className="w-full mb-2"
@@ -171,34 +169,19 @@ export default function CreateProducts() {
             options={listNav.map((n) => ({ label: n.name, value: n.id }))}
           />
           <Button type="primary" loading={creatingType} onClick={handleCreateType}>
-            Lưu loại sản phẩm
+            Lưu loại
           </Button>
         </div>
       ),
     },
     {
-      title: "Sản phẩm",
+      title: "Sản phẩm + Chi tiết",
       content: (
         <div className="max-w-md">
-          <Input
-            placeholder="Tên sản phẩm"
-            value={productName}
-            onChange={(e) => setProductName(e.target.value)}
-            className="mb-2"
-          />
-          <Input
-            placeholder="Giá sản phẩm"
-            type="number"
-            value={productPrice}
-            onChange={(e) => setProductPrice(e.target.value)}
-            className="mb-2"
-          />
-          <Input
-            placeholder="Mô tả sản phẩm"
-            value={productDescription}
-            onChange={(e) => setProductDescription(e.target.value)}
-            className="mb-2"
-          />
+          <Input placeholder="Tên sản phẩm" value={productName} onChange={(e) => setProductName(e.target.value)} className="mb-2" />
+          <Input placeholder="Giá sản phẩm" type="number" value={productPrice} onChange={(e) => setProductPrice(e.target.value)} className="mb-2" />
+          <Input placeholder="Mô tả sản phẩm" value={productDescription} onChange={(e) => setProductDescription(e.target.value)} className="mb-2" />
+
           <Select
             placeholder="Chọn loại sản phẩm"
             className="w-full mb-2"
@@ -206,43 +189,30 @@ export default function CreateProducts() {
             onChange={(val) => setTypeId(val)}
             options={listTypes.map((t) => ({ label: t.name, value: t.id }))}
           />
+
+          {/* Upload 1 ảnh product */}
           <UploadImages
-            multiple
-            onChange={(files) => setProductImages(files)} // files là File[]
+            multiple={false}
+            onChange={(file) => setProductImage(file)}
           />
 
-          <Button type="primary" loading={creatingProd} onClick={handleCreateProduct}>
-            Lưu sản phẩm
+
+
+          {/* Chi tiết */}
+          <Input.TextArea placeholder="Chi tiết sản phẩm" value={detailDescription} onChange={(e) => setDetailDescription(e.target.value)} className="mb-2" />
+
+          {/* 10 ô upload ảnh chi tiết */}
+          <Upload10Images
+            multiple={false}
+            value={detailImages}
+            onChange={(newFiles) => setDetailImages(newFiles)}
+          />
+
+
+          <Button type="primary" htmlType="button" loading={creatingFull} onClick={handleCreateFullProduct}>
+            Lưu sản phẩm + chi tiết
           </Button>
-        </div>
-      ),
-    },
-    {
-      title: "Chi tiết sản phẩm",
-      content: (
-        <div className="max-w-md">
-          <Input
-            placeholder="Tên sản phẩm (đã tạo)"
-            value={detailProductName}
-            onChange={(e) => setDetailProductName(e.target.value)}
-            className="mb-2"
-          />
-          <Input.TextArea
-            placeholder="Chi tiết sản phẩm"
-            value={productDetail}
-            onChange={(e) => setProductDetail(e.target.value)}
-            className="mb-2"
-          />
-          <UploadImages
-            multiple
-            onChange={(imgs) => {
-              const formatted = imgs.map((img) => img.split(",")[1] || img);
-              setDetailImages(formatted);
-            }}
-          />
-          <Button type="primary" loading={creatingDetail} onClick={handleCreateDetail}>
-            Lưu chi tiết
-          </Button>
+
         </div>
       ),
     },
@@ -252,25 +222,10 @@ export default function CreateProducts() {
     <div className="p-6 bg-gray-50 min-h-screen">
       <h1 className="text-xl font-bold mb-6 text-green-700">Quy trình tạo sản phẩm</h1>
       <Steps current={currentStep} className="mb-6" items={steps.map((s) => ({ title: s.title }))} />
-
-      <div className="bg-white p-6 rounded-xl shadow-md mb-6">
-        {steps[currentStep].content}
-      </div>
-
+      <div className="bg-white p-6 rounded-xl shadow-md mb-6">{steps[currentStep]?.content}</div>
       <div className="flex justify-between max-w-md">
-        <Button
-          disabled={currentStep === 0}
-          onClick={() => setCurrentStep((prev) => prev - 1)}
-        >
-          Quay lại
-        </Button>
-        <Button
-          type="primary"
-          disabled={currentStep === steps.length - 1}
-          onClick={() => setCurrentStep((prev) => prev + 1)}
-        >
-          Tiếp tục
-        </Button>
+        <Button disabled={currentStep === 0} onClick={() => setCurrentStep((prev) => prev - 1)}>Quay lại</Button>
+        <Button disabled={currentStep === steps.length - 1} onClick={() => setCurrentStep((prev) => prev + 1)}>Tiếp tục</Button>
       </div>
     </div>
   );

@@ -17,9 +17,28 @@ export const getProduct = (params) => {
 };
 
 
-export const createProductDetail = (payload) => http.post('api/product-detail', payload);
+export const createProductDetail = (formData) => {
+  return http.post("api/product-detail", formData,{
+    withCredentials: false,
+  });
+};
+
 export const getProductDetail = (params) => {
   return http.get("/api/full-detail", { params });
+};
+
+export const createFullProduct = (formData) =>
+  http.post('api/products-full', formData, {
+    headers: {
+      'Content-Type': undefined,
+    },
+  });
+
+
+export const getFullProduct = (params = {}) => {
+  // params là object, ví dụ { name: 'abc' }
+  const query = new URLSearchParams(params).toString(); // => "name=abc"
+  return http.get(`api/products-full?${query}`);
 };
 
 

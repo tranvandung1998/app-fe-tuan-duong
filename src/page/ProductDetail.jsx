@@ -1,64 +1,104 @@
-import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
-import { getProductDetail } from "../api/products";
+import React, { useState } from "react";
+import { Carousel, Image, Modal } from "antd";
+import { useLocation } from "react-router-dom";
 
 export default function ProductDetail() {
-  const { id } = useParams();
-  const [product, setProduct] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const location = useLocation();
+  const product = location.state?.product;
 
-  useEffect(() => {
-    if (!id) return;
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [currentSlide, setCurrentSlide] = useState(0);
 
-    const fetchDetail = async () => {
-      setLoading(true);
-      try {
-        const res = await getProductDetail({ id: Number(id) });
-        setProduct(res.data[0] || null);
-      } catch (err) {
-        console.error(err);
-        setProduct(null);
-      } finally {
-        setLoading(false);
-      }
-    };
+  if (!product) return <p className="text-center mt-10 text-red-500">Không tìm thấy sản phẩm</p>;
 
-    fetchDetail();
-  }, [id]);
+  const images = product.detail_images?.length
+    ? product.detail_images
+    : [product.product_images]; // fallback 1 ảnh chính
 
-  console.log("Product state:", product);
-
-  if (loading) return <div>Đang tải sản phẩm...</div>;
-  if (!product) return <div>Không tìm thấy sản phẩm</div>;
-
-  // Sử dụng slide_image nếu images không có
-  const imagesArray =
-    product.images?.length > 0
-      ? product.images
-      : product.slide_image
-      ? Object.values(product.slide_image).filter(Boolean)
-      : [];
+  const openModal = (index) => {
+    setCurrentSlide(index);
+    setIsModalOpen(true);
+  };
 
   return (
-    <div className="p-4">
-      ádhadhajskdhjakshdbjkasblfhjashnfjkhlmakfajklsdksadjsakdbsajcbn cnc sndb sbdjsbdjksabdjsabdjksabdjkbdjkasbdk
-      <h1 className="text-2xl font-bold">{product.name}</h1>
-      <p>{product.description}</p>
+    <div className="p-6 max-w-5xl mx-auto">
+      {/* Carousel chính */}
+      <div className="rounded-lg overflow-hidden shadow-lg">
+        <Carousel autoplay dots={true}>
+          {images.map((url, idx) => (
+            <div key={idx}>
+              <img
+                src={url}
+                alt={`${product.name}-${idx}`}
+                className="w-full h-96 object-cover"
+                onError={(e) => e.currentTarget.src = product.product_images}
+              />
+            </div>
+          ))}
+        </Carousel>
+      </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
-        {imagesArray.map((img, idx) => (
-          <img
-            key={idx}
-            src={img}
-            alt={`${product.name}-${idx}`}
-            className="w-full h-48 object-cover rounded"
-            onError={(e) =>
-              (e.currentTarget.src =
-                "https://image.plo.vn/1200x630/Uploaded/2025/obflucp/2014_04_03/82801_20140402170734_JETO.jpg")
-            }
-          />
+      {/* Thumbnails */}
+      <div className="flex gap-3 mt-4 overflow-x-auto">
+        {images.map((url, idx) => (
+          <div key={idx} className="flex-shrink-0 cursor-pointer" onClick={() => openModal(idx)}>
+            <Image
+              src={url}
+              width={80}
+              height={80}
+              style={{ objectFit: "cover", borderRadius: "6px" }}
+              preview={false}
+            />
+          </div>
         ))}
       </div>
+
+      {/* Thông tin sản phẩm */}
+      <div className="mt-6 bg-white p-4 rounded-lg shadow-md">
+        <h1 className="text-3xl font-bold mb-2">{product.name}</h1>
+        <p className="text-pink-500 text-2xl font-semibold mb-1">{Number(product.price).toLocaleString()} ₫/tháng</p>
+        {product.size && <p className="text-gray-600 mb-1">Diện tích: {product.size} m²</p>}
+        {product.location && <p className="text-gray-700 mb-1">Vị trí: {product.location}</p>}
+        {product.project && <p className="text-blue-600 mb-1">Dự án: {product.project}</p>}
+        {product.updatedAt && <p className="text-gray-500">Cập nhật: {product.updatedAt}</p>}
+      </div>
+
+      {/* Mô tả chi tiết */}
+      {product.detail_description && (
+        <div className="mt-6 bg-white p-4 rounded-lg shadow-md">
+          <h2 className="text-xl font-semibold mb-2">Mô tả chi tiết</h2>
+          <p className="text-gray-700">{product.detail_description}</p>
+        </div>
+      )}
+
+      {/* Modal full màn hình */}
+{/* Modal full màn hình */}
+<Modal
+  open={isModalOpen}
+  footer={null}
+  onCancel={() => setIsModalOpen(false)}
+  width="90%"
+  style={{ top: 20 }}
+  bodyStyle={{ padding: 0, backgroundColor: "#000" }}
+  centered
+>
+  <Carousel initialSlide={currentSlide} dots={true} autoplay>
+    {images.map((url, idx) => (
+      <div
+        key={idx}
+        className="flex justify-center items-center h-[80vh] bg-black"
+      >
+        <img
+          src={url}
+          alt={`${product.name}-${idx}`}
+          className="max-h-full max-w-full object-contain"
+          onError={(e) => (e.currentTarget.src = product.product_images)}
+        />
+      </div>
+    ))}
+  </Carousel>
+</Modal>
+
     </div>
   );
 }

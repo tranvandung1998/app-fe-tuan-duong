@@ -14,7 +14,7 @@ export default function App() {
           <Route path="/" element={<Navigate to="/home" replace />} />
           <Route path="/home" element={<Home />} />
           <Route path="/products" element={<Products />} />
-          <Route path="/product-detail/:id" element={<ProductDetail />} />
+          <Route path="/product-detail/:name" element={<ProductDetail />} />
           <Route path="/create-products" element={<CreateProducts />} />
         </Routes>
       </div>
