@@ -93,3 +93,7 @@ button:focus-visible {
     margin: auto;
     text-align: center;
 }
+
+.ant-modal-content {
+  padding: unset;
+}

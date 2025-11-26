@@ -26,15 +26,31 @@ export default function CreateProducts() {
   const [detailImages, setDetailImages] = useState(Array(10).fill(null)); // 10 ô
 
 
-  const uploadFile = async (file, folder) => {
-    const fileName = `${crypto.randomUUID()}-${file.name}`;
-    const { error } = await supabase.storage
-      .from("product-images")
-      .upload(`${folder}/${fileName}`, file);
-    if (error) throw error;
-    const { data } = supabase.storage.from("product-images").getPublicUrl(`${folder}/${fileName}`);
-    return data.publicUrl;
-  };
+const uploadFile = async (file, folder) => {
+  // 1. Sinh UUID + tên file "safe"
+  const safeName = file.name
+    .normalize("NFD")                  // tách dấu
+    .replace(/[\u0300-\u036f]/g, "")  // bỏ dấu
+    .replace(/\s+/g, "_")             // thay space bằng _
+    .replace(/[^a-zA-Z0-9._-]/g, ""); // loại ký tự đặc biệt còn lại
+
+  const fileName = `${crypto.randomUUID()}-${safeName}`;
+
+  // 2. Upload lên Supabase
+  const { error } = await supabase.storage
+    .from("product-images")
+    .upload(`${folder}/${fileName}`, file);
+
+  if (error) throw error;
+
+  // 3. Lấy public URL
+  const { data } = supabase.storage
+    .from("product-images")
+    .getPublicUrl(`${folder}/${fileName}`);
+
+  return data.publicUrl;
+};
+
 
 
   // ===== Query Data =====
