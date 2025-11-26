@@ -45,7 +45,7 @@ export default function ProductDetail() {
 
           {/* Thumbnails */}
           <div style={{width: "100%", height: "20px", background: "rgb(204, 204, 204)"}}></div>
-          <div className="flex gap-3 mt-4 overflow-x-auto" style={{marginTop: "40px"}}>
+          <div className="flex gap-3 mt-4 overflow-x-auto" style={{marginTop: "40px", justifyContent: "space-around"}}>
             {images.map((url, idx) => (
               <div key={idx} className="flex-shrink-0 cursor-pointer" onClick={() => openModal(idx)}>
                 <Image
